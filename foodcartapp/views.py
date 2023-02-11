@@ -1,8 +1,13 @@
+import json
+from pprint import pprint
+
 from django.http import JsonResponse
 from django.templatetags.static import static
 
 
 from .models import Product
+from .models import Order
+from .models import OrderElement
 
 
 def banners_list_api(request):
@@ -58,5 +63,23 @@ def product_list_api(request):
 
 
 def register_order(request):
-    # TODO это лишь заглушка
+    try:
+        serialized_order = json.loads(request.body.decode())
+    except ValueError:
+        return JsonResponse({
+            'error': 'error occurs',
+        })
+    pprint(serialized_order)
+    order = Order.objects.create(
+        address=serialized_order['address'],
+        firstname=serialized_order['firstname'],
+        lastname=serialized_order['lastname'],
+        phonenumber=serialized_order['phonenumber'],
+    )
+    for order_element in serialized_order['products']:
+        OrderElement.objects.create(
+            order=order,
+            product=Product.objects.get(pk=order_element['product']),
+            quantity=order_element['quantity'],
+        )
     return JsonResponse({})
