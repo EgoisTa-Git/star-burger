@@ -166,7 +166,7 @@ class OrderElement(models.Model):
     quantity = models.IntegerField(
         'Количество',
         default=1,
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(1)],
 
     )
 
