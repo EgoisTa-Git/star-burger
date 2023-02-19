@@ -73,11 +73,12 @@ class ProductSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = ProductSerializer(many=True, allow_empty=False)
+    products = ProductSerializer(many=True, allow_empty=False, write_only=True)
 
     class Meta:
         model = Order
         fields = [
+            'id',
             'address',
             'firstname',
             'lastname',
@@ -101,4 +102,4 @@ def register_order(request):
     elements = [OrderElement(order=order, **fields) for fields in products]
     OrderElement.objects.bulk_create(elements)
 
-    return Response({'success': 'Заказ создан!', 'order_id': order.id})
+    return Response(OrderSerializer(order).data)
