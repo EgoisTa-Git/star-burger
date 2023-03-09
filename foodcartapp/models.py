@@ -5,10 +5,10 @@ from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 ORDER_STATUS = [
-    ('created', 'Необработанный'),
-    ('cooking', 'Готовится'),
-    ('delivering', 'Доставляется'),
-    ('completed', 'Доставлен'),
+    ('01_created', 'Необработанный'),
+    ('02_cooking', 'Готовится'),
+    ('03_delivering', 'Доставляется'),
+    ('04_completed', 'Доставлен'),
 ]
 PAYMENT_METHOD = [
     ('cash', 'Наличностью'),
@@ -140,7 +140,8 @@ class RestaurantMenuItem(models.Model):
 class OrderQuerySet(models.QuerySet):
     def with_price(self):
         price = Sum(F('elements__product__price') * F('elements__quantity'))
-        return self.annotate(full_price=price)
+        return self.annotate(price=price).prefetch_related('elements__product')\
+            .select_related('restaurant')
 
 
 class Order(models.Model):
@@ -193,6 +194,14 @@ class Order(models.Model):
         max_length=20,
         choices=PAYMENT_METHOD,
         db_index=True,
+    )
+    restaurant = models.ForeignKey(
+        'Restaurant',
+        related_name='orders',
+        verbose_name="Ресторан",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     objects = OrderQuerySet.as_manager()
 

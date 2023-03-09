@@ -8,7 +8,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from foodcartapp.models import OrderElement
 
 
 class Login(forms.Form):
@@ -92,6 +93,22 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.with_price()
-    context = {'order_items': orders}
+
+    items = RestaurantMenuItem.objects.all()
+    products_vs_rests = items.values('product', 'restaurant__name')
+
+    orders = Order.objects.with_price().exclude(status='04_completed')\
+        .order_by('status')
+    for order in orders:
+        for element in order.elements.all():
+            available_in = list(filter(
+                lambda d: d['product'] == element.product.id, products_vs_rests
+            ))
+            element.available_in = [d['restaurant__name'] for d in available_in]
+        order.available_in = set.intersection(
+            *map(set, [elem.available_in for elem in order.elements.all()])
+        )
+        print(order.available_in)
+
+    context = {'orders': orders}
     return render(request, template_name='order_items.html', context=context)
