@@ -35,6 +35,10 @@ class RestaurantAdmin(admin.ModelAdmin):
         'address',
         'contact_phone',
     ]
+    readonly_fields = (
+        'latitude',
+        'longitude',
+    )
     inlines = [
         RestaurantMenuItemInline
     ]
@@ -117,6 +121,10 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'latitude',
+        'longitude',
+    )
     inlines = [
         OrderElementInline
     ]

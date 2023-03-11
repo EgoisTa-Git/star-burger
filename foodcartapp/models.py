@@ -1,8 +1,12 @@
 from django.db import models
 from django.db.models import F, Sum
 from django.core.validators import MinValueValidator
+from django.conf import settings
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
+import requests
+
+from .coordinates import fetch_coordinates
 
 ORDER_STATUS = [
     ('01_created', 'Необработанный'),
@@ -26,9 +30,20 @@ class Restaurant(models.Model):
         max_length=100,
         blank=True,
     )
+    __original_address = None
     contact_phone = models.CharField(
         'контактный телефон',
         max_length=50,
+        blank=True,
+    )
+    longitude = models.FloatField(
+        'Долгота',
+        null=True,
+        blank=True,
+    )
+    latitude = models.FloatField(
+        'Широта',
+        null=True,
         blank=True,
     )
 
@@ -38,6 +53,25 @@ class Restaurant(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_address = self.address
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.address != self.__original_address:
+            api_key = settings.YANDEX_GEO_APIKEY
+            try:
+                self.latitude, self.longitude = fetch_coordinates(
+                    api_key,
+                    self.address,
+                )
+            except requests.exceptions.HTTPError:
+                self.latitude = None
+                self.longitude = None
+
+        super().save(force_insert, force_update, *args, **kwargs)
+        self.__original_address = self.address
 
 
 class ProductQuerySet(models.QuerySet):
@@ -145,9 +179,21 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
-    address = models.TextField(
-        'Адрес',
+    address = models.CharField(
+        'адрес',
+        max_length=100,
         db_index=True,
+    )
+    __original_address = None
+    longitude = models.FloatField(
+        'Долгота',
+        null=True,
+        blank=True,
+    )
+    latitude = models.FloatField(
+        'Широта',
+        null=True,
+        blank=True,
     )
     firstname = models.CharField(
         'Имя',
@@ -211,6 +257,25 @@ class Order(models.Model):
 
     def __str__(self):
         return f'{self.firstname} {self.lastname} {self.address}'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_address = self.address
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.address != self.__original_address:
+            api_key = settings.YANDEX_GEO_APIKEY
+            try:
+                self.latitude, self.longitude = fetch_coordinates(
+                    api_key,
+                    self.address,
+                )
+            except requests.exceptions.HTTPError:
+                self.latitude = None
+                self.longitude = None
+
+        super().save(force_insert, force_update, *args, **kwargs)
+        self.__original_address = self.address
 
 
 class OrderElement(models.Model):

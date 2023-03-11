@@ -3,13 +3,11 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-
+from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
-from foodcartapp.models import OrderElement
 
 
 class Login(forms.Form):
@@ -93,9 +91,9 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-
     items = RestaurantMenuItem.objects.all()
     products_vs_rests = items.values('product', 'restaurant__name')
+    restaurants = list(Restaurant.objects.all())
 
     orders = Order.objects.with_price().exclude(status='04_completed')\
         .order_by('status')
@@ -105,9 +103,26 @@ def view_orders(request):
                 lambda d: d['product'] == element.product.id, products_vs_rests
             ))
             element.available_in = [d['restaurant__name'] for d in available_in]
-        order.available_in = set.intersection(
+
+        order_available_in = set.intersection(
             *map(set, [elem.available_in for elem in order.elements.all()])
         )
+        order_coord = (order.latitude, order.longitude)
+        restaurants_with_distances = []
+        for restaurant in restaurants:
+            if restaurant.name in order_available_in:
+                restaurant_coord = (restaurant.latitude, restaurant.longitude)
+                restaurants_with_distances.append(
+                    (restaurant.name, distance.distance(
+                        order_coord,
+                        restaurant_coord,
+                    ).km),
+                )
+        restaurants_with_distances.sort(key=lambda dist: dist[1])
+        text = '{} - {:.2f} км'
+        order.available_in = [
+            text.format(rest[0], rest[1]) for rest in restaurants_with_distances
+        ]
 
     context = {'orders': orders}
     return render(request, template_name='order_items.html', context=context)
