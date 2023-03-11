@@ -108,7 +108,6 @@ def view_orders(request):
         order.available_in = set.intersection(
             *map(set, [elem.available_in for elem in order.elements.all()])
         )
-        print(order.available_in)
 
     context = {'orders': orders}
     return render(request, template_name='order_items.html', context=context)
