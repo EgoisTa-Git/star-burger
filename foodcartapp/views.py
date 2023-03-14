@@ -1,14 +1,12 @@
 from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
-
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
 
 from .models import Product
-from .models import Order
-from .models import OrderElement
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
@@ -63,47 +61,10 @@ def product_list_api(request):
     })
 
 
-class ProductSerializer(ModelSerializer):
-
-    class Meta:
-        model = OrderElement
-        fields = [
-            'product',
-            'quantity',
-        ]
-
-
-class OrderSerializer(ModelSerializer):
-    products = ProductSerializer(many=True, allow_empty=False, write_only=True)
-
-    class Meta:
-        model = Order
-        fields = [
-            'id',
-            'address',
-            'firstname',
-            'lastname',
-            'phonenumber',
-            'products',
-        ]
-
-
 @api_view(['POST'])
 @transaction.atomic
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-
-    order = Order.objects.create(
-        address=serializer.validated_data['address'],
-        firstname=serializer.validated_data['firstname'],
-        lastname=serializer.validated_data['lastname'],
-        phonenumber=serializer.validated_data['phonenumber'],
-    )
-    products = serializer.validated_data['products']
-    elements = [OrderElement(
-        order=order, price=fields['product'].price, **fields
-    ) for fields in products]
-    OrderElement.objects.bulk_create(elements)
-
-    return Response(OrderSerializer(order).data)
+    serializer.save()
+    return Response(data=serializer.data, status=status.HTTP_201_CREATED)
