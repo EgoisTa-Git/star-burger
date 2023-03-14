@@ -71,7 +71,7 @@ details > details[open] summary {
           <p style="color: red;"><b>Ни один ресторан не может выполнить заказ!</b></p>
             {% endif %}
           {% else %}
-          <p>Заказ готовит: <b>{{ order.restaurant }}</b></p>
+          <p>Заказ готовит: <b>{{ order.selected_restaurant }}</b></p>
           {% endif %}
         </td>
         <td><a href="{% url 'admin:foodcartapp_order_change' object_id=order.id %}?next={{ request.path|urlencode }}">Редактировать</a></td>

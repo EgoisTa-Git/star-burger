@@ -175,7 +175,7 @@ class OrderQuerySet(models.QuerySet):
     def with_price(self):
         price = Sum(F('elements__product__price') * F('elements__quantity'))
         return self.annotate(price=price).prefetch_related('elements__product')\
-            .select_related('restaurant')
+            .select_related('selected_restaurant')
 
 
 class Order(models.Model):
@@ -241,7 +241,7 @@ class Order(models.Model):
         choices=PAYMENT_METHOD,
         db_index=True,
     )
-    restaurant = models.ForeignKey(
+    selected_restaurant = models.ForeignKey(
         'Restaurant',
         related_name='orders',
         verbose_name="Ресторан",
