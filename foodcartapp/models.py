@@ -15,6 +15,7 @@ ORDER_STATUS = [
     ('04_completed', 'Доставлен'),
 ]
 PAYMENT_METHOD = [
+    ('NOT_SET', 'Не выбран'),
     ('cash', 'Наличностью'),
     ('online', 'Электронно'),
 ]
@@ -239,6 +240,7 @@ class Order(models.Model):
         'Способ оплаты',
         max_length=20,
         choices=PAYMENT_METHOD,
+        default='NOT_SET',
         db_index=True,
     )
     selected_restaurant = models.ForeignKey(
