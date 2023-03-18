@@ -57,7 +57,6 @@ class OrderSerializer(ModelSerializer):
                     api_key,
                     validated_data['address'],
                 )
-
             except (requests.exceptions.HTTPError, KeyError) as err:
                 pass
             address.save()
