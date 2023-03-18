@@ -31,7 +31,6 @@ class Restaurant(models.Model):
         max_length=100,
         blank=True,
     )
-    __original_address = None
     contact_phone = models.CharField(
         'контактный телефон',
         max_length=50,
@@ -54,25 +53,6 @@ class Restaurant(models.Model):
 
     def __str__(self):
         return self.name
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__original_address = self.address
-
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.address != self.__original_address:
-            api_key = settings.YANDEX_GEO_APIKEY
-            try:
-                self.latitude, self.longitude = fetch_coordinates(
-                    api_key,
-                    self.address,
-                )
-            except requests.exceptions.HTTPError:
-                self.latitude = None
-                self.longitude = None
-
-        super().save(force_insert, force_update, *args, **kwargs)
-        self.__original_address = self.address
 
 
 class ProductQuerySet(models.QuerySet):
