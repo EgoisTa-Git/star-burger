@@ -8,6 +8,7 @@ from django.contrib.auth import views as auth_views
 from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from address.models import Address
 
 
 class Login(forms.Form):
@@ -97,6 +98,11 @@ def view_orders(request):
 
     orders = Order.objects.with_price().exclude(status='04_completed')\
         .order_by('status')
+    addresses = []
+    for order in orders:
+        addresses.append(order.address)
+    orders_addresses = Address.objects.filter(address__in=addresses)
+
     for order in orders:
         for element in order.elements.all():
             available_in = list(filter(
@@ -107,7 +113,10 @@ def view_orders(request):
         order_available_in = set.intersection(
             *map(set, [elem.available_in for elem in order.elements.all()])
         )
-        order_coord = (order.latitude, order.longitude)
+
+        order_address = orders_addresses.get(address=order.address)
+        order_coord = (order_address.latitude, order_address.longitude)
+
         restaurants_with_distances = []
         for restaurant in restaurants:
             if restaurant.name in order_available_in:
@@ -118,6 +127,7 @@ def view_orders(request):
                         restaurant_coord,
                     ).km),
                 )
+
         restaurants_with_distances.sort(key=lambda dist: dist[1])
         text = '{} - {:.2f} км'
         order.available_in = [

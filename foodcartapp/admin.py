@@ -121,10 +121,6 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = (
-        'latitude',
-        'longitude',
-    )
     inlines = [
         OrderElementInline
     ]
