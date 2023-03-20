@@ -215,7 +215,7 @@ class Order(models.Model):
     selected_restaurant = models.ForeignKey(
         'Restaurant',
         related_name='orders',
-        verbose_name="Ресторан",
+        verbose_name='Заказ готовит ресторан',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
