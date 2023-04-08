@@ -37,7 +37,7 @@ python --version
 ```
 **Важно!** Версия Python должна быть не ниже 3.6.
 
-Возможно, вместо команды `python` здесь и в остальных инструкциях этого README придётся использовать `python3`. Зависит это от операционной системы и от того, установлен ли у вас Python старой второй версии. 
+Возможно, вместо команды `python` здесь и в остальных инструкциях этого README придётся использовать `python3`. Зависит это от операционной системы и от того, установлен ли у вас Python старой второй версии.
 
 В каталоге проекта создайте виртуальное окружение:
 ```sh
@@ -56,11 +56,13 @@ pip install -r requirements.txt
 
 Определите переменную окружения `SECRET_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
 ```sh
-SECRET_KEY=django-insecure-0if40nf4nf93n4
+SECRET_KEY="PASTE_YOUR_KEY_HERE"
 ```
+Ключ можно получить [тут](https://djecrety.ir/)
 
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+Установите и настройте базу данных PostgreSQL ([инструкция тут](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04))
 
+После установки и настройки базы данных проведите миграцию схемы базы данных.
 ```sh
 python manage.py migrate
 ```
@@ -147,6 +149,9 @@ Parcel будет следить за файлами в каталоге `bundle
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
+- `YANDEX_GEO_APIKEY` - ключ от API Яндекс-геокодера ([инструкция тут](https://dvmn.org/encyclopedia/api-docs/yandex-geocoder-api/)).
+- `ROLLBAR_ACCESS_TOKEN` - токен от системы мониторинга ROLLBAR ([инструкция тут](https://docs.openreplay.com/en/integrations/rollbar/)).
+- `DATABASE_URL` - однострочный адрес к базе данных, например: `postgres://user:password@localhost:port/database_name`. Больше информации в [документации](https://github.com/jacobian/dj-database-url)
 
 ## Цели проекта
 
