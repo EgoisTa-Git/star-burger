@@ -153,6 +153,30 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ROLLBAR_ACCESS_TOKEN` - токен от системы мониторинга ROLLBAR ([инструкция тут](https://docs.openreplay.com/en/integrations/rollbar/)).
 - `DATABASE_URL` - однострочный адрес к базе данных, например: `postgres://user:password@localhost:port/database_name`. Больше информации в [документации](https://github.com/jacobian/dj-database-url)
 
+## Быстрое обновление кода на сервере
+
+Для быстрого обновления кода на сервере используйте скрипт:
+```bash
+#!/bin/bash
+set -Eeuo pipefail
+cd /opt/star-burger/
+source ./venv/bin/activate
+git pull
+/sbin/swapoff /var/swap.1
+/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024
+/sbin/mkswap /var/swap.1
+/sbin/swapon /var/swap.1
+pip install -r requirements.txt
+npm install
+./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
+python manage.py collectstatic --noinput
+python manage.py migrate
+systemctl daemon-reload
+systemctl reload starburger.service
+systemctl reload nginx.service
+echo Deploy completed!
+```
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
