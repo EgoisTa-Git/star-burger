@@ -151,6 +151,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_GEO_APIKEY` - ключ от API Яндекс-геокодера ([инструкция тут](https://dvmn.org/encyclopedia/api-docs/yandex-geocoder-api/)).
 - `ROLLBAR_ACCESS_TOKEN` - токен от системы мониторинга ROLLBAR ([инструкция тут](https://docs.openreplay.com/en/integrations/rollbar/)).
+- `ROLLBAR_ENVIRONMENT` - название окружения или инсталляции сайта (`development` или `production`)
 - `DATABASE_URL` - однострочный адрес к базе данных, например: `postgres://user:password@localhost:port/database_name`. Больше информации в [документации](https://github.com/jacobian/dj-database-url)
 
 ## Быстрое обновление кода на сервере

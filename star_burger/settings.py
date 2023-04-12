@@ -1,6 +1,7 @@
 import os
 
 import dj_database_url
+import rollbar
 
 from environs import Env
 
@@ -131,8 +132,8 @@ YANDEX_GEO_APIKEY = env('YANDEX_GEO_APIKEY')
 
 ROLLBAR = {
     'access_token': env('ROLLBAR_ACCESS_TOKEN'),
-    'environment': 'development' if DEBUG else 'production',
-    'code_version': '1.0',
+    'environment': env.str('ROLLBAR_ENVIRONMENT'),
     'branch': 'master',
     'root': BASE_DIR,
 }
+rollbar.init(**ROLLBAR)
