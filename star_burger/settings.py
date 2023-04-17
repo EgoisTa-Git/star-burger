@@ -134,10 +134,11 @@ YANDEX_GEO_APIKEY = env('YANDEX_GEO_APIKEY')
 repo = Repo(BASE_DIR)
 sha = repo.head.commit.hexsha
 short_sha = repo.git.rev_parse(sha, short=7)
-ROLLBAR = {
-    'access_token': env('ROLLBAR_ACCESS_TOKEN'),
-    'environment': env.str('ROLLBAR_ENVIRONMENT'),
-    'code_version': short_sha,
-    'branch': 'master',
-    'root': BASE_DIR,
-}
+if not DEBUG:
+    ROLLBAR = {
+        'access_token': env('ROLLBAR_ACCESS_TOKEN'),
+        'environment': env.str('ROLLBAR_ENVIRONMENT', 'development'),
+        'code_version': short_sha,
+        'branch': 'master',
+        'root': BASE_DIR,
+    }
