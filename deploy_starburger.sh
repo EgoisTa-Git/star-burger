@@ -36,4 +36,6 @@ curl https://api.rollbar.com/api/1/deploy/ \
   -F revision="$REVISION" \
   -F local_username="$LOCAL_USERNAME"
 
-printf "Deploy completed!\n"
+chmod u+x deploy_starburger.sh
+
+printf "\nDeploy completed!\n"
