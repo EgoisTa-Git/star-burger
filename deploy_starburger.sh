@@ -36,4 +36,4 @@ curl https://api.rollbar.com/api/1/deploy/ \
   -F revision="$REVISION" \
   -F local_username="$LOCAL_USERNAME"
 
-echo "Deploy completed!"
+printf "Deploy completed!\n"
