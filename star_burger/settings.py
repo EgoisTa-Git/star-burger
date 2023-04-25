@@ -131,10 +131,11 @@ STATICFILES_DIRS = [
 
 YANDEX_GEO_APIKEY = env('YANDEX_GEO_APIKEY')
 
+ROLLBAR_ENABLED = env.bool('ROLLBAR_ENABLED', False)
 repo = Repo(BASE_DIR)
 sha = repo.head.commit.hexsha
 short_sha = repo.git.rev_parse(sha, short=7)
-if not DEBUG:
+if ROLLBAR_ENABLED:
     ROLLBAR = {
         'access_token': env('ROLLBAR_ACCESS_TOKEN'),
         'environment': env.str('ROLLBAR_ENVIRONMENT', 'development'),
