@@ -1,0 +1,50 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    restart: unless-stopped
+    volumes:
+      - static_volume:/opt/starburger/web/staticfiles
+      - media_volume:/opt/starburger/web/media
+    ports:
+      - "8000"
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    command: gunicorn star_burger.wsgi:application --bind 0.0.0.0:8000 --workers 3
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+     - ./nginx:/etc/nginx/templates
+     - ./nginx/ssl:/etc/ssl
+     - static_volume:/opt/starburger/web/staticfiles
+     - media_volume:/opt/starburger/web/media
+    ports:
+     - "80:80"
+     - "443:443"
+    environment:
+     - NGINX_HOST=${YOUR_DOMAIN}
+     - NGINX_PORT=80
+     - SSL_DOMAIN=${DOMAIN_NAME}
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

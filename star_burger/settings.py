@@ -1,7 +1,6 @@
 import os
+import subprocess
 
-from git import Repo
-import dj_database_url
 import rollbar
 
 from environs import Env
@@ -17,7 +16,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', '0.0.0.0', 'localhost'])
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -32,6 +31,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'phonenumber_field',
     'rest_framework',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
@@ -87,10 +87,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 DATABASES = {
-    'default': dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-    ),
+    'default': {
+        'ENGINE': env('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': env('DB_NAME', os.path.join(BASE_DIR, 'db.sqlite3')),
+        'USER': env('DB_USER', 'user'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST', 'localhost'),
+        'PORT': env('DB_PORT', '5432'),
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -132,9 +136,14 @@ STATICFILES_DIRS = [
 YANDEX_GEO_APIKEY = env('YANDEX_GEO_APIKEY')
 
 ROLLBAR_ENABLED = env.bool('ROLLBAR_ENABLED', False)
-repo = Repo(BASE_DIR)
-sha = repo.head.commit.hexsha
-short_sha = repo.git.rev_parse(sha, short=7)
+
+shell = subprocess.run(
+    'git rev-parse origin/master',
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    shell=True,
+)
+short_sha = shell.stdout[:7]
 if ROLLBAR_ENABLED:
     ROLLBAR = {
         'access_token': env('ROLLBAR_ACCESS_TOKEN'),

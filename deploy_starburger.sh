@@ -1,16 +1,11 @@
 #!/bin/bash
 set -Eeuo pipefail
-source ./venv/bin/activate
+cd /opt/star-burger/
+docker-compose down
 git pull
-
-pip install -r requirements.txt
-npm ci --dev
-./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
-python manage.py collectstatic --noinput
-python manage.py migrate --noinput
-systemctl daemon-reload
-systemctl reload starburger.service
-systemctl reload nginx.service
+docker-compose up -d --build
+docker-compose exec web python manage.py migrate --noinput
+docker-compose exec web python manage.py collectstatic --no-input --clear
 
 if [ -f .env ]; then
   export $(echo $(cat .env | sed 's/#.*//g'| xargs -0) | envsubst)
