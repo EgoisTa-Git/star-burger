@@ -1,7 +1,3 @@
-bundles/**
-node_modules/
-media/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -141,10 +137,14 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-.parcel-cache/
+frontend/.parcel-cache/
 
 .idea
 
-staticfiles/
+frontend/bundles/**
+frontend/node_modules/
+backend/media/
+
+backend/staticfiles/
 nginx/ssl
 postgres-data/

@@ -12,18 +12,28 @@ services:
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
 
+  frontend:
+    build: frontend/.
+    restart: on-failure
+    volumes:
+      - bundles_volume:/opt/starburger/app/bundles
+
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
     restart: unless-stopped
     volumes:
-      - static_volume:/opt/starburger/web/staticfiles
-      - media_volume:/opt/starburger/web/media
+      - static_volume:/opt/starburger/app/staticfiles
+      - media_volume:/opt/starburger/app/media
+      - bundles_volume:/opt/starburger/app/bundles
     ports:
       - "8000"
     env_file:
       - ./.env
     depends_on:
       - db
+      - frontend
     command: gunicorn star_burger.wsgi:application --bind 0.0.0.0:8000 --workers 3
 
   nginx:
@@ -32,8 +42,8 @@ services:
     volumes:
      - ./nginx:/etc/nginx/templates
      - ./nginx/ssl:/etc/ssl
-     - static_volume:/opt/starburger/web/staticfiles
-     - media_volume:/opt/starburger/web/media
+     - static_volume:/opt/starburger/app/staticfiles
+     - media_volume:/opt/starburger/app/media
     ports:
      - "80:80"
      - "443:443"
@@ -48,3 +58,4 @@ volumes:
   postgres_data:
   static_volume:
   media_volume:
+  bundles_volume:

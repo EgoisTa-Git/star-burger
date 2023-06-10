@@ -23,11 +23,11 @@ server {
     }
 
     location /static/ {
-        alias /opt/starburger/web/staticfiles/;
+        alias /opt/starburger/app/staticfiles/;
     }
 
     location /media/ {
-        alias /opt/starburger/web/media/;
+        alias /opt/starburger/app/media/;
     }
 }
 
